@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brycer Processor Tool</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .card-centered {
+            margin: 0 auto;
+            float: none;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card card-centered">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">Brycer Processor Tool</h3>
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="premise_file">Upload Premise Profile Sheet</label>
+                                <input type="file" class="form-control-file" id="premise_file" name="premise_file" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact_file">Upload Export Default Contacts Sheet</label>
+                                <input type="file" class="form-control-file" id="contact_file" name="contact_file" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Enhance Data with LIV AI</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="add_occupancy_types" id="add_occupancy_types">
+                                    <label class="form-check-label" for="add_occupancy_types">Add Occupancy Types</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="add_system_types" id="add_system_types">
+                                    <label class="form-check-label" for="add_system_types">Add System Types</label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Process Data</button>
+                        </form>
+                        <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-block mt-3">Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

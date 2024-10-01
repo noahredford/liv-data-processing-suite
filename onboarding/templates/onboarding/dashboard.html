@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIV Data Onboarding Suite</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .card-equal-height {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .card-body {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">LIV Data Onboarding Suite</h1>
+        <div class="row mt-5">
+            <!-- KML to Business Data Card -->
+            <div class="col-md-4 d-flex align-items-stretch">
+                <div class="card card-equal-height">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">KML to Business Data</h5>
+                        <p class="card-text">You will need a KML file to pull data. It uses the Google Places API to pull business data for a given area based on the KML file. Use it sparingly as it costs money, and note that this tool takes time to run.</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'kml_to_business' %}" class="btn btn-primary">Select Tool</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Data Scrubber Card -->
+            <div class="col-md-4 d-flex align-items-stretch">
+                <div class="card card-equal-height">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Data Scrubber</h5>
+                        <p class="card-text">The Data Scrubber will ensure your Excel sheet is properly formatted for upload into LIV. Ensure the column headers are correct (instructions available when you enter the tool).</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'data_scrubber' %}" class="btn btn-primary">Select Tool</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Brycer Processor Card -->
+            <div class="col-md-4 d-flex align-items-stretch">
+                <div class="card card-equal-height">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Brycer Processor</h5>
+                        <p class="card-text">The Brycer Processor will process data from Brycer. Attach all required files. It will merge and match premises, add contacts, and remove duplicates.</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'brycer_processor' %}" class="btn btn-primary">Select Tool</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
