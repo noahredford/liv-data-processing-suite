@@ -20,16 +20,24 @@
                 <div class="card card-centered">
                     <div class="card-body">
                         <h3 class="card-title text-center">Brycer Processor Tool</h3>
-                        <form method="POST" enctype="multipart/form-data">
+                        {% if message %}
+                            <div class="alert alert-success">
+                                {{ message }}
+                            </div>
+                            <a href="{{ download_url }}" class="btn btn-primary btn-block">Download Processed File</a>
+                        {% else %}
+                        <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="form-group">
-                                <label for="premise_file">Upload Premise Profile Sheet</label>
-                                <input type="file" class="form-control-file" id="premise_file" name="premise_file" required>
+                              <label for="premise_file">Upload Premise Profile Sheet:</label>
+                              <input type="file" name="premise_file" id="premise_file" class="form-control" required>
                             </div>
+                            
                             <div class="form-group">
-                                <label for="contact_file">Upload Export Default Contacts Sheet</label>
-                                <input type="file" class="form-control-file" id="contact_file" name="contact_file" required>
+                              <label for="contact_file">Upload Export Default Contacts Sheet:</label>
+                              <input type="file" name="contact_file" id="contact_file" class="form-control" required>
                             </div>
+                          
                             <div class="form-group">
                                 <label>Enhance Data with LIV AI</label>
                                 <div class="form-check">
@@ -41,8 +49,10 @@
                                     <label class="form-check-label" for="add_system_types">Add System Types</label>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-block">Process Data</button>
-                        </form>
+                          
+                            <button type="submit" class="btn btn-primary">Process</button>
+                          </form>
+                        {% endif %}
                         <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-block mt-3">Back to Dashboard</a>
                     </div>
                 </div>
