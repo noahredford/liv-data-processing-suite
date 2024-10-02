@@ -26,18 +26,18 @@
                             </div>
                             <a href="{{ download_url }}" class="btn btn-primary btn-block">Download Processed File</a>
                         {% else %}
-                        <form method="post" enctype="multipart/form-data">
+                        <form method="post" enctype="multipart/form-data" action="{% url 'brycer_processor' %}">
                             {% csrf_token %}
                             <div class="form-group">
-                              <label for="premise_file">Upload Premise Profile Sheet:</label>
-                              <input type="file" name="premise_file" id="premise_file" class="form-control" required>
+                                <label for="premise_file">Upload Premise Profile Sheet:</label>
+                                <input type="file" name="premise_file" id="premise_file" class="form-control" required>
                             </div>
                             
                             <div class="form-group">
-                              <label for="contact_file">Upload Export Default Contacts Sheet:</label>
-                              <input type="file" name="contact_file" id="contact_file" class="form-control" required>
+                                <label for="contact_file">Upload Export Default Contacts Sheet:</label>
+                                <input type="file" name="contact_file" id="contact_file" class="form-control" required>
                             </div>
-                          
+                            
                             <div class="form-group">
                                 <label>Enhance Data with LIV AI</label>
                                 <div class="form-check">
@@ -49,9 +49,9 @@
                                     <label class="form-check-label" for="add_system_types">Add System Types</label>
                                 </div>
                             </div>
-                          
+                        
                             <button type="submit" class="btn btn-primary">Process</button>
-                          </form>
+                        </form>
                         {% endif %}
                         <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-block mt-3">Back to Dashboard</a>
                     </div>

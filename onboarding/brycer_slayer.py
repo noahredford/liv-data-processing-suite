@@ -1,35 +1,45 @@
-import pandas as pd
+import pandas as pd  # Add this import statement at the top of the file
 import re
 import os
 
-def clean_and_format_brycer_data(premise_file_path, contact_file_path):
-    # Determine the file extension for both files
-    premise_ext = os.path.splitext(premise_file_path)[1].lower()
-    contact_ext = os.path.splitext(contact_file_path)[1].lower()
 
-    # Load the Premise file based on extension
-    if premise_ext in ['.xls', '.xlsx']:
+
+def clean_and_format_brycer_data(premise_file_path, contact_file_path):
+    # Determine file type for premise file and load it appropriately
+    premise_file_ext = os.path.splitext(premise_file_path)[1].lower()
+
+    if premise_file_ext == '.xlsx':
         premise_df = pd.read_excel(premise_file_path, engine='openpyxl')
-    elif premise_ext == '.csv':
+    elif premise_file_ext == '.xls':
+        premise_df = pd.read_excel(premise_file_path, engine='xlrd')
+    elif premise_file_ext == '.csv':
         premise_df = pd.read_csv(premise_file_path)
     else:
-        raise ValueError("Unsupported file format for Premise file. Only .xls, .xlsx, and .csv are supported.")
+        raise ValueError(f"Unsupported file format: {premise_file_ext} for premise file")
 
-    # Load the Contact file based on extension
-    if contact_ext in ['.xls', '.xlsx']:
+    # Determine file type for contact file and load it appropriately
+    contact_file_ext = os.path.splitext(contact_file_path)[1].lower()
+
+    if contact_file_ext == '.xlsx':
         contact_df = pd.read_excel(contact_file_path, engine='openpyxl')
-    elif contact_ext == '.csv':
+    elif contact_file_ext == '.xls':
+        contact_df = pd.read_excel(contact_file_path, engine='xlrd')
+    elif contact_file_ext == '.csv':
         contact_df = pd.read_csv(contact_file_path)
     else:
-        raise ValueError("Unsupported file format for Contact file. Only .xls, .xlsx, and .csv are supported.")
+        raise ValueError(f"Unsupported file format: {contact_file_ext} for contact file")
 
     # Remove unwanted columns in the premise sheet
     df = premise_df.drop(['ID', 'ReferenceNumber'], axis=1)
 
-    # Rename 'Name' to 'Premise Name' in the premise file
-    df = df.rename(columns={'Name': 'Premise Name', 'Address Line 1': 'Address Line 1', 'Report Type': 'System Types'})
+    # Rename columns in the premise file
+    df = df.rename(columns={
+        'Name': 'Premise Name',
+        'Address Line 1': 'Address Line 1',
+        'Report Type': 'System Types'
+    })
 
-    # Ensure 'Premise Name' values are strings and remove unwanted characters
+    # Clean the 'Premise Name' values: remove unwanted characters and fix capitalization
     def clean_premise_name(text):
         text = str(text)
         text = re.sub(r"[^\w\s]", "", text)  # Remove punctuation, but keep spaces and alphanumeric characters
@@ -37,30 +47,26 @@ def clean_and_format_brycer_data(premise_file_path, contact_file_path):
         text = re.sub(r"bbq\b", "BBQ", text, flags=re.IGNORECASE)  # Ensure BBQ is always capitalized
         return text.title()  # Convert to title case
 
-    # Apply the cleaning function to Premise Name
+    # Apply the cleaning function to 'Premise Name'
     df['Premise Name'] = df['Premise Name'].apply(clean_premise_name)
 
-    # Format the 'Address Line 1' column to title case and clean it
+    # Clean 'Address Line 1': title case, remove unwanted characters, fix suffixes and building descriptors
     df['Address Line 1'] = df['Address Line 1'].astype(str).str.title().str.replace(r'[.,-]', '', regex=True)
 
-    # Fix ordinal suffixes (e.g., "17Th" to "17th")
+    # Fix ordinal suffixes and building descriptors
     def fix_ordinal_suffixes(text):
-        # Replace common ordinal patterns like "1St", "2Nd", "3Rd", "4Th"
         text = re.sub(r'(\d+)(St|Nd|Rd|Th)\b', lambda m: m.group(1) + m.group(2).lower(), text)
         return text
 
-    # Fix building descriptors merged with road names (e.g., "17ThBldg" to "17th Bldg")
     def separate_building_descriptors(text):
-        # Insert a space before building/descriptor keywords if they are merged with numbers
         return re.sub(r'(\d+\w*)(Bldg|Clubhouse|Suite|Unit|Apt|Flr|Floor)', r'\1 \2', text)
 
-    # Apply these fixes to Premise Name and Address Line 1
+    # Apply these fixes to 'Premise Name' and 'Address Line 1'
     df['Premise Name'] = df['Premise Name'].apply(fix_ordinal_suffixes).apply(separate_building_descriptors)
     df['Address Line 1'] = df['Address Line 1'].apply(fix_ordinal_suffixes).apply(separate_building_descriptors)
 
-    # Fix cardinal directions and street abbreviations
+    # Format address columns to fix street abbreviations and cardinal directions
     def format_address(addr):
-        addr = str(addr)  # Ensure the value is a string
         addr = re.sub(r'\bN\b', 'North', addr)
         addr = re.sub(r'\bS\b', 'South', addr)
         addr = re.sub(r'\bE\b', 'East', addr)
@@ -75,12 +81,12 @@ def clean_and_format_brycer_data(premise_file_path, contact_file_path):
 
     df['Address Line 1'] = df['Address Line 1'].apply(format_address)
 
-    # Proper punctuation for 'City', 'State', and 'Zip'
+    # Ensure proper capitalization for 'City', 'St', and 'Zip'
     df['City'] = df['City'].str.title()
     df['St'] = df['St'].str.upper()
     df['Zip'] = df['Zip'].astype(str)
 
-    # Rename system types as instructed
+    # Map system types to their correct names
     system_type_mapping = {
         'Hood Suppression System': 'Commercial Hood Suppression',
         'Sprinkler System': 'Fire Sprinkler System',
@@ -93,18 +99,50 @@ def clean_and_format_brycer_data(premise_file_path, contact_file_path):
     }
     df['System Types'] = df['System Types'].replace(system_type_mapping)
 
-    # Concatenate System Types for premises with multiple report types, ensuring they are separated by commas with no spaces
+    # Concatenate system types for premises with multiple report types, ensuring no spaces after commas
     df = df.groupby(['Premise Name', 'Address Line 1', 'City', 'St', 'Zip'], as_index=False).agg({
-        'System Types': lambda x: ','.join(sorted(set(map(str, x))))  # No spaces after commas
+        'System Types': lambda x: ','.join(sorted(set(map(str, x))))
     })
 
     # Match the premise name from the contact file to the profile sheet and add the correct email
-    contact_df = contact_df[['Premises Name', 'Contact Email']]  # Updated to 'Premises Name'
+    contact_df = contact_df[['Premises Name', 'Contact Email']]  # Selecting relevant columns
+    contact_df = contact_df.rename(columns={'Premises Name': 'Premise Name'})  # Renaming for merging
 
-    # Rename 'Premises Name' to 'Premise Name' to match with the premise DataFrame
-    contact_df = contact_df.rename(columns={'Premises Name': 'Premise Name'})
-
-    # Merge the contact information into the premise_df
+    # Merge the contact information into the premise DataFrame
     df = pd.merge(df, contact_df, on='Premise Name', how='left')
+
+    return df
+
+
+import pandas as pd
+import re
+
+def enhance_with_occ_types(df):
+    # Load the Occupancy Type Master Key Words file
+    keywords_file = '/Users/noahredford/liv-onboarding/Occupancy Type Master Key Words.xlsx'  # Replace with the actual path
+    keywords_data = pd.read_excel(keywords_file)
+
+    # Create a dictionary from the keywords file
+    keywords_dict = {}
+
+    # Assuming the first column has the occupancy types and the second column has the keywords
+    for i, row in keywords_data.iterrows():
+        occupancy_type = row[0]  # First column is the Occupancy Type
+        keyword_list = str(row[1]).split(",")  # Second column contains the keywords, split by commas
+        for keyword in keyword_list:
+            keyword = keyword.strip().lower()  # Clean up spaces and convert to lowercase
+            if keyword:
+                keywords_dict[keyword] = occupancy_type
+
+    # Function to assign occupancy types based on keywords in Premise Name
+    def assign_occupancy_type(premise_name):
+        premise_name = str(premise_name).lower()  # Convert to lowercase for matching
+        for keyword, occupancy_type in keywords_dict.items():
+            if re.search(rf'\b{keyword}\b', premise_name):  # Match whole words
+                return occupancy_type
+        return ''  # Return blank if no keyword is found
+
+    # Apply the function to the 'Premise Name' column in the DataFrame
+    df['Occupancy Type'] = df['Premise Name'].apply(assign_occupancy_type)
 
     return df
