@@ -26,12 +26,13 @@
                             <li>Address information should be placed under a column labeled <strong>'Address Line 1'</strong>.</li>
                             <!-- Add more instructions as necessary -->
                         </ul>
-                        <form method="POST" enctype="multipart/form-data">
+                        <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="form-group">
-                                <label for="excel_file">Upload Excel File</label>
-                                <input type="file" class="form-control-file" id="excel_file" name="excel_file" required>
+                                <label for="data_file">Upload your Excel or CSV file:</label>
+                                <input type="file" name="data_file" id="data_file" class="form-control" required>
                             </div>
+                        
                             <div class="form-group">
                                 <label>Enhance Data with LIV AI</label>
                                 <div class="form-check">
@@ -43,7 +44,21 @@
                                     <label class="form-check-label" for="add_system_types">Add System Types</label>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-block">Process Data</button>
+                            
+                            <button type="submit" class="btn btn-primary">Process File</button>
+                        
+                            {% if message %}
+                            <div class="alert alert-success mt-3">
+                                {{ message }}
+                                <a href="{{ download_url }}" class="btn btn-success">Download Cleaned File</a>
+                            </div>
+                            {% endif %}
+                        
+                            {% if error %}
+                            <div class="alert alert-danger mt-3">
+                                {{ error }}
+                            </div>
+                            {% endif %}
                         </form>
                         <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-block mt-3">Back to Dashboard</a>
                     </div>
