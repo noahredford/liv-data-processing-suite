@@ -11,6 +11,12 @@
             float: none;
             margin-top: 50px;
         }
+        .form-check {
+            margin-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -24,13 +30,58 @@
                         <ul>
                             <li>Premise names should be placed under a column labeled <strong>'Premise Name'</strong>.</li>
                             <li>Address information should be placed under a column labeled <strong>'Address Line 1'</strong>.</li>
-                            <!-- Add more instructions as necessary -->
+                            <li>Use the below checkboxes to add Reference Numbers, City/State/Zip, Occupancy Types, and System Types.</li>
                         </ul>
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="form-group">
                                 <label for="data_file">Upload your Excel or CSV file:</label>
                                 <input type="file" name="data_file" id="data_file" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="checkbox" name="assign_reference_number" id="assign_reference_number" class="form-check-input">
+                                    <label class="form-check-label" for="assign_reference_number">Assign Reference Numbers</label>
+                                </div>
+                        
+                                <!-- Show this section if the user selects 'Assign Reference Numbers' -->
+                                <div id="reference_number_section" class="ml-4" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="state_abbreviation">State Abbreviation:</label>
+                                        <input type="text" name="state_abbreviation" id="state_abbreviation" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ahj_abbreviation">AHJ Abbreviation (3-4 letters):</label>
+                                        <input type="text" name="ahj_abbreviation" id="ahj_abbreviation" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="start_number">Starting Number:</label>
+                                        <input type="number" name="start_number" id="start_number" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="checkbox" name="assign_city_state_zip" id="assign_city_state_zip" class="form-check-input">
+                                    <label class="form-check-label" for="assign_city_state_zip">Assign City, State, and Zip</label>
+                                </div>
+                        
+                                <div id="city_state_zip_section" class="ml-4" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="city">City:</label>
+                                        <input type="text" name="city" id="city" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="state">State:</label>
+                                        <input type="text" name="state" id="state" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="zip">Zip:</label>
+                                        <input type="text" name="zip" id="zip" class="form-control">
+                                    </div>
+                                </div>
                             </div>
                         
                             <div class="form-group">
@@ -45,7 +96,7 @@
                                 </div>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary">Process File</button>
+                            <button type="submit" class="btn btn-primary btn-block">Process File</button>
                         
                             {% if message %}
                             <div class="alert alert-success mt-3">
@@ -60,6 +111,30 @@
                             </div>
                             {% endif %}
                         </form>
+                        <script>
+                            document.getElementById("assign_reference_number").addEventListener("change", function() {
+                                var referenceSection = document.getElementById("reference_number_section");
+                                if (this.checked) {
+                                    referenceSection.style.display = "block";
+                                } else {
+                                    referenceSection.style.display = "none";
+                                }
+                            });
+                        
+                            document.getElementById("assign_city_state_zip").addEventListener("change", function() {
+                                var cityStateZipSection = document.getElementById("city_state_zip_section");
+                                if (this.checked) {
+                                    cityStateZipSection.style.display = "block";
+                                } else {
+                                    cityStateZipSection.style.display = "none";
+                                }
+                            });
+                        </script>
                         <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-block mt-3">Back to Dashboard</a>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
